@@ -517,6 +517,14 @@
         updateMainProgress();
         updateActiveLink();
     });
+        function postHeightToParent() {
+  const height = document.body.scrollHeight;
+  window.parent.postMessage({ type: 'resize', height: height }, '*');
+}
+
+// Send height after load and on resize
+window.addEventListener('load', postHeightToParent);
+window.addEventListener('resize', postHeightToParent);
     </script>
 </body>
 </html>
