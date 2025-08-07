@@ -519,7 +519,7 @@
     });
         function postHeightToParent() {
   const height = document.body.scrollHeight;
-  window.parent.postMessage({ type: 'resize', height: height }, '*');
+  window.parent.postMessage({ type: 'resize', height: height }, 'https://transcy.io/');
 }
 
 // Send height after load and on resize
