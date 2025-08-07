@@ -9,9 +9,515 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- The rest of your styles, body, script goes here... -->
+    <style>
+        :root {
+            --sidebar-width: 280px;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .progress-bar-container {
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            height: 1.25rem;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background-color: #4ade80;
+            height: 100%;
+            transition: width 0.3s ease-in-out;
+        }
+        .circular-progress {
+            transform: rotate(-90deg);
+        }
+        .circular-progress-background {
+            fill: none;
+            stroke: #e5e7eb;
+        }
+        .circular-progress-bar {
+            fill: none;
+            stroke: #34d399;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease-out;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+            height: 100%;
+        }
+        .checklist-item:hover {
+            background-color: #f9fafb;
+        }
+        .checklist-item input {
+            accent-color: #34d399;
+        }
+        #sidebar {
+            width: var(--sidebar-width);
+            transition: transform 0.3s ease;
+        }
+        #main-content {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+        }
+        #sidebar a.active {
+            background-color: #e0f2fe;
+            color: #0c4a6e;
+            font-weight: 600;
+        }
+        .tool-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .formula-box {
+            background-color: #fefce8;
+            border: 1px solid #fde047;
+            color: #a16207;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+        }
+        .guide-step {
+            border-left: 3px solid #93c5fd;
+        }
+        @media (max-width: 1024px) {
+            #main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            #sidebar {
+                transform: translateX(-100%);
+                z-index: 40;
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+            #menu-button {
+                display: block;
+            }
+        }
+    </style>
 </head>
 <body class="text-slate-700">
-    <!-- Your full canvas content here -->
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full bg-white border-r border-slate-200 p-4 overflow-y-auto">
+        <h2 class="text-lg font-bold text-slate-800 mb-4">Navigation</h2>
+        <nav id="sidebar-nav" class="space-y-1"></nav>
+    </aside>
+
+    <!-- Mobile Menu Button -->
+    <button id="menu-button" class="lg:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-md shadow-md">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <div class="max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
+            <header class="text-center mb-10">
+                <h1 class="text-4xl font-bold text-slate-900 mb-2">Master SEO Content Guideline</h1>
+                <p class="text-lg text-slate-600">For E-Commerce Product Pages</p>
+            </header>
+
+            <main class="space-y-12">
+                <!-- Main Progress Bar (Sections 1-14) -->
+                <section class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 sticky top-0 z-10">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-xl font-bold text-slate-800">Overall SEO Progress</h3>
+                        <span id="main-score" class="text-lg font-semibold text-slate-600">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div id="main-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                    </div>
+                </section>
+
+                <!-- Sections Container -->
+                <div id="sections-container" class="space-y-12"></div>
+
+                <!-- Section 15 - Final Audit -->
+                <section id="section-15" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 scroll-mt-24">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div class="flex-grow">
+                            <h2 class="text-2xl font-bold text-slate-900 mb-2">15. Final SEO Audit Summary</h2>
+                            <p class="text-slate-600 mb-6">A final check of all critical on-page SEO elements. Ensure everything is completed for optimal performance.</p>
+                            <div id="final-audit-checklist" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                        </div>
+                        <div class="relative w-48 h-48 flex-shrink-0">
+                            <svg class="w-full h-full circular-progress" viewBox="0 0 36 36">
+                                <path class="circular-progress-background" stroke-width="3" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                                <path id="final-audit-progress-bar" class="circular-progress-bar" stroke-width="3" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                            </svg>
+                            <div id="final-audit-score" class="absolute inset-0 flex items-center justify-center text-3xl font-bold text-slate-800">0%</div>
+                        </div>
+                    </div>
+                </section>
+                 <!-- Optional Tools Section -->
+                <section id="tools-section" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 scroll-mt-24">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-4">🧰 Optional: Tools to Use</h2>
+                    <div id="tools-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- DATA ---
+        const sectionsData = [
+            {
+                icon: "✅",
+                title: "URL Slug (SEO-Friendly Product URL)",
+                what: "The portion of a webpage URL that comes after the domain name and often reflects the product name (e.g. /nike-air-force-1-white).",
+                why: "Clean, keyword-rich URLs are easier for users to read and remember. Search engines also use slugs to understand the topic of the page. Simple, descriptive URLs are more likely to be clicked and shared.",
+                checklist: ["Keep URLs clean and readable", "Use hyphens (-) to separate words", "Include the main product keyword", "Use lowercase only", "Avoid stop words (e.g. “and”, “the”)", "Remove unnecessary dynamic parameters (?id=123)"],
+                examples: { good: "/sneakers/nike-air-force-1-white", bad: ["/product?id=98324783", "/nikeAF1white_shoe.html"] },
+                tip: "Use canonical URLs if the same product appears in multiple categories."
+            },
+            {
+                icon: "✍️",
+                title: "Meta Title (SEO Page Title)",
+                what: "The title tag is shown as the blue clickable link in search engine results and as the browser tab title.",
+                why: "Appears on Google’s results page and impacts CTR and rankings.",
+                checklist: ["Length: 50–60 characters", "Include brand + product name + key benefit", "Use title case (Capitalize Each Word)", "Put the primary keyword at the beginning", "Add a USP or CTA if space allows"],
+                formula: "[Brand] [Product Name] – [USP or Category] | [CTA/Offer]",
+                examples: { good: ["Nike Air Force 1 White – Classic Leather Sneakers | Free Shipping", "Samsung Galaxy S22 Ultra – 5G Android Phone | Buy Now"], bad: ["Home", "Product Detail Page"] }
+            },
+            {
+                icon: "🧾",
+                title: "Meta Description",
+                what: "A short HTML snippet that summarizes the product page under the title in search engine results.",
+                why: "It functions like an ad preview — enticing users to click. While it doesn’t directly affect rankings, it significantly impacts CTR by highlighting benefits, urgency, and clarity.",
+                checklist: ["150–160 characters", "1–2 primary keywords naturally included", "Emphasize value, benefit, and urgency", "Use action verbs", "Be readable and human-friendly — not stuffed!"],
+                examples: { good: "Experience comfort and style with Nike Air Force 1 sneakers. White leather finish, iconic design. Shop now with free 2-day delivery!", bad: "Nike shoes best price cheap white running sports leather buy now fast" }
+            },
+            {
+                icon: "🛍️",
+                title: "Product Title (H1 Heading)",
+                what: "The visible headline of your product page often uses an H1 HTML tag. It usually includes the product name, brand, and key details.",
+                why: "It tells both users and search engines exactly what the page is about. A clear H1 title improves user experience and supports your SEO hierarchy.",
+                checklist: ["Clear, specific, and matches search intent", "Use consistent format: Brand + Product Name + Variant", "Avoid jargon or acronyms unless standard (e.g. “AF1” for Nike)"],
+                examples: { good: ["Nike Air Force 1 '07 Low – White Leather Sneakers", "Dyson V15 Detect Cordless Vacuum Cleaner – Gold Edition"], bad: ["AF107 Sneaker", "Best Running Shoe 2025"] }
+            },
+            {
+                icon: "📄",
+                title: "Product Description (Main Content)",
+                what: "The body of text that describes the product’s benefits, features, specifications, and relevant details.",
+                why: "Search engines rely on this content to understand and index your page. For customers, it answers key questions, sets expectations, and drives purchases. A well-written description increases both search visibility and conversion rate.",
+                checklist: ["Minimum: 200–400 words", "Include target keywords (but no stuffing!)", "Start with an engaging hook or problem-solution benefit", "Use bullet points for specs/features", "Add rich details: dimensions, weight, materials, use cases, warranty", "Use internal links to size guides, blog articles, related collections", "End with a mini CTA"],
+                detailedGuide: [
+                    { icon: 'fa-lightbulb', title: 'Lead With a Hook', text: 'Start with 2–3 sentences that highlight the core benefit. Focus on emotional triggers or what problem the product solves.', example: 'Step up your streetwear game with the Nike Air Force 1 — the iconic sneaker that delivers all-day comfort and timeless style.' },
+                    { icon: 'fa-users', title: 'Describe Use Cases', text: 'Explain when, where, or how the product is best used. Identify the target customer (e.g., fitness enthusiasts, parents).', example: 'Whether you’re heading to class, brunch, or the basketball court, the Air Force 1’s versatile design adapts to any situation.' },
+                    { icon: 'fa-star', title: 'Highlight Features + Benefits', text: 'Use feature-benefit pairing. Limit to 4–7 points. Start each bullet with a strong adjective or action verb.', example: '<strong>Premium full-grain leather</strong> – Durable and easy to clean. <br><strong>Air-cushioned sole</strong> – Comfortable for all-day wear.' },
+                    { icon: 'fa-ruler-combined', title: 'Include Detailed Specs', text: 'Include sizes, material, weight, fit, care instructions, what\'s in the box, etc.', example: '<strong>Material:</strong> 100% leather upper. <br><strong>Weight:</strong> Approx. 1.2 kg per pair.' },
+                    { icon: 'fa-shield-halved', title: 'Address Objections', text: 'Tackle common fears like shipping, returns, or guarantees to reinforce trust.', example: 'Ships within 1–2 business days. Free returns accepted within 30 days.' },
+                    { icon: 'fa-bullhorn', title: 'End With a Soft CTA', text: 'Encourage action with a gentle nudge.', example: 'Add this timeless essential to your collection now — while supplies last.' },
+                    { icon: 'fa-clone', title: 'Repeat for Each Variant', text: 'If your product has multiple variants (colors, sizes), describe them clearly and avoid duplicate text.', example: 'Also available in Black and University Blue.' }
+                ]
+            },
+            {
+                icon: "🖼️",
+                title: "Images (SEO & UX-Optimized)",
+                what: "These are the product visuals shown on the page, including thumbnails, lifestyle images, close-ups, and alternate views.",
+                why: "High-quality images help users make confident buying decisions and reduce bounce rates. Google also relies on alt text for image search rankings and accessibility compliance.",
+                checklist: ["Use high-res images (1000x1000 px minimum)", "Upload WebP or compressed JPEG for speed", "Include alt text with keywords", "Include: Product on white background, Lifestyle shots, Close-up/detail shots, Size comparison, 360° view (optional)"],
+                examples: { good: ["alt=\"Nike Air Force 1 white leather side view\"", "alt=\"Dyson V15 vacuum gold model handheld cleaning\""], bad: ["alt=\"image1.jpg\"", "alt=\"shoe-pic\""] },
+                tip: "Use filenames like nike-air-force-1-white-top-view.webp"
+            },
+            {
+                icon: "🎥",
+                title: "Videos",
+                what: "Embedded product videos that showcase the item in use, unboxed, or with 360° rotation.",
+                why: "Videos improve time-on-page, clarify features, and build trust. They also boost engagement and conversions, especially for high-priced or demo-worthy items.",
+                checklist: ["Use for high-ticket or physical-interaction products", "Video length: 15 sec – 90 sec", "Show product in use, unboxing, setup", "Include: Captions, Descriptive video title, Optimized YouTube/Vimeo description with links"],
+                tip: "Host videos on YouTube and embed for extra SEO juice."
+            },
+            {
+                icon: "📚",
+                title: "Product Specifications Table",
+                what: "A structured table listing key product attributes like material, size, weight, SKU, warranty, etc.",
+                why: "Spec tables help skimmers find technical details quickly and improve usability. They’re essential for complex products. Google can also better extract data from tables.",
+                checklist: ["Use for products with technical details, size charts, or SKU variations", "Use structured HTML tables or interactive components"],
+                detailedGuide: `
+                    <h4 class="font-semibold text-slate-800 mt-4 mb-2">Example:</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr><th class="border-b p-2 bg-slate-50">Feature</th><th class="border-b p-2 bg-slate-50">Details</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="border-b p-2">Material</td><td class="border-b p-2">100% Full-Grain Leather</td></tr>
+                                <tr><td class="border-b p-2">Sizes Available</td><td class="border-b p-2">US 6–12</td></tr>
+                                <tr><td class="border-b p-2">Weight</td><td class="border-b p-2">1.2 kg</td></tr>
+                                <tr><td class="border-b p-2">Warranty</td><td class="border-b p-2">1 year manufacturer warranty</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `
+            },
+            {
+                icon: "🧲",
+                title: "SEO Schema / Structured Data (Technical)",
+                what: "Behind-the-scenes code that tells Google the meaning of the content on your product page — like the price, stock status, or reviews.",
+                why: "Schema enables rich results in search (stars, prices, FAQs) and improves search visibility. It also helps search engines interpret your content accurately.",
+                checklist: ["Product Schema: Name, Image, Description, Price, SKU, Brand, Availability", "Review Schema: Aggregate rating + # of reviews", "FAQ Schema: If FAQ block is present", "Use canonical tags to avoid duplicate content", "Page must be indexable (no noindex)", "Include Open Graph and Twitter Card tags for social sharing"],
+                tip: "Use Google’s Rich Results Test to verify."
+            },
+            {
+                icon: "🔗",
+                title: "Internal Linking",
+                what: "Links within your product page that point to other relevant pages on your site — such as collections, categories, blogs, or help pages.",
+                why: "Internal links improve SEO by helping Google crawl your site more efficiently and by passing link equity to important pages. They also guide users toward related content and increase time on site and conversion likelihood.",
+                checklist: ["Link to: Category pages", "Link to: Related blog posts", "Link to: Size guides, shipping policies", "Anchor text should be natural and descriptive"],
+                examples: { good: "Looking for other summer picks? Check out our <a href='#' class='text-blue-600 underline'>best white sneakers collection</a>." }
+            },
+            {
+                icon: "🛒",
+                title: "Related / Similar Products",
+                what: "A section displaying alternative or complementary products — usually shown in a carousel, grid, or “You may also like” block.",
+                why: "Helps customers discover more items they may want to buy, increasing average order value. It also boosts internal linking and keeps users on your site longer.",
+                checklist: ["Show 4–6 product suggestions", "Must be relevant and visually aligned", "Include product name, price, and thumbnail", "Link to products with proper SEO-friendly URLs", "Optional: Use “Customers also bought” or “Shop the look” bundles"]
+            },
+            {
+                icon: "⭐",
+                title: "Reviews & Ratings",
+                what: "Customer-submitted ratings, written reviews, and sometimes images are displayed on the product page.",
+                why: "Social proof builds trust and confidence. Reviews can increase conversions and generate star-rich results in search (if schema is applied).",
+                checklist: ["Enable review submission (with photo upload)", "Display average rating + count above the fold", "Mark up reviews using JSON-LD schema", "Moderate for spam but don’t over-filter — keep authenticity", "Allow filtering by rating, keyword, or helpfulness"]
+            },
+            {
+                icon: "❓",
+                title: "FAQ Section (Optional but High-Value)",
+                what: "A list of common customer questions with helpful answers, displayed on the product page.",
+                why: "It resolves objections before they arise, enhances trust, and qualifies your page for FAQ rich snippets in search.",
+                checklist: ["Add 3–5 common questions", "Write in natural language", "Include keywords naturally", "Add FAQ schema markup"],
+                examples: { good: "<strong>Q: Is this shoe waterproof?</strong><br>A: No, this sneaker is made of genuine leather and is not fully waterproof." }
+            },
+            {
+                icon: "📖",
+                title: "Readability & Grammar",
+                what: "Ensuring your content is easy to read and grammatically correct.",
+                why: "Poor readability and grammar can hurt user experience and credibility, leading to higher bounce rates.",
+                checklist: ["No grammar or spelling errors", "Use active voice, not passive", "Limit sentence length (<20 words on average)", "Avoid jargon unless essential (then explain)", "Keep tone consistent (e.g., confident, helpful, conversational)", "Use contractions (you’ll, it’s) for friendliness", "Write for Grade 7–8 reading level (use Hemingway Editor)"]
+            }
+        ];
+
+        const finalAuditItems = [
+            "Slug includes product keyword", "Meta title optimized", "Meta description engaging",
+            "H1 product title clear", "Product description unique", "Keywords used naturally",
+            "Alt text written for images", "Product schema present", "Page is indexable",
+            "Internal links added", "Reviews structured data added", "FAQ section present",
+            "CTA visible above fold", "Trust signals shown (badges, return policy)"
+        ];
+        
+        const toolsData = [
+            { name: 'Grammarly / Hemingway', description: 'Grammar & readability', icon: 'fa-spell-check', color: 'bg-blue-500' },
+            { name: 'Yoast SEO / RankMath', description: 'On-page SEO scoring', icon: 'fa-magnifying-glass-chart', color: 'bg-orange-500' },
+            { name: 'Google PageSpeed', description: 'Load time optimization', icon: 'fa-gauge-high', color: 'bg-red-500' },
+            { name: 'Rich Results Test', description: 'Schema validation', icon: 'fa-sitemap', color: 'bg-amber-500' },
+            { name: 'Ahrefs / Semrush', description: 'Keyword validation', icon: 'fa-key', color: 'bg-sky-500' },
+            { name: 'TinyPNG / ImageOptim', description: 'Image compression', icon: 'fa-file-image', color: 'bg-teal-500' },
+            { name: 'Hotjar / Clarity', description: 'Behavior analysis', icon: 'fa-eye', color: 'bg-purple-500' }
+        ];
+
+        // --- DOM ELEMENTS ---
+        const sectionsContainer = document.getElementById('sections-container');
+        const sidebarNav = document.getElementById('sidebar-nav');
+        const mainProgressBar = document.getElementById('main-progress-bar');
+        const mainScoreDisplay = document.getElementById('main-score');
+        const finalAuditChecklist = document.getElementById('final-audit-checklist');
+        const finalAuditProgressBar = document.getElementById('final-audit-progress-bar');
+        const finalAuditScore = document.getElementById('final-audit-score');
+        const toolsGrid = document.getElementById('tools-grid');
+        const sidebar = document.getElementById('sidebar');
+        const menuButton = document.getElementById('menu-button');
+        
+        // --- FUNCTIONS ---
+
+        function createExamplesHtml(examples) {
+            if (!examples) return '';
+            let goodHtml = '';
+            let badHtml = '';
+
+            if (examples.good) {
+                const goodItems = Array.isArray(examples.good) ? examples.good : [examples.good];
+                goodHtml = goodItems.map(item => `<p class="text-green-600 bg-green-50 p-3 rounded-md"><i class="fas fa-check-circle mr-3"></i>${item}</p>`).join('');
+            }
+            if (examples.bad) {
+                const badItems = Array.isArray(examples.bad) ? examples.bad : [examples.bad];
+                badHtml = badItems.map(item => `<p class="text-red-600 bg-red-50 p-3 rounded-md"><i class="fas fa-times-circle mr-3"></i>${item}</p>`).join('');
+            }
+
+            return `
+                <div class="mt-6">
+                    <h4 class="font-semibold text-slate-800 mb-2">Examples:</h4>
+                    <div class="space-y-2">${goodHtml}${badHtml}</div>
+                </div>`;
+        }
+
+        function createDetailedGuideHtml(guide) {
+            if (!guide) return '';
+            if (typeof guide === 'string') return guide; // For simple guides like section 8
+
+            const guideHtml = guide.map((step, index) => `
+                <div class="guide-step flex items-start gap-4 p-4">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">${index + 1}</div>
+                    <div class="flex-grow">
+                        <h5 class="font-bold text-slate-800 mb-1"><i class="fas ${step.icon} mr-2 text-blue-500"></i>${step.title}</h5>
+                        <p class="text-slate-600">${step.text}</p>
+                        <p class="text-sm text-slate-500 mt-2 p-2 bg-slate-50 rounded-md"><em><strong>Example:</strong> ${step.example}</em></p>
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <h4 class="font-semibold text-slate-800 mt-6 mb-2">A more detailed guide:</h4>
+                <div class="space-y-4">${guideHtml}</div>
+                <h4 class="font-semibold text-slate-800 mt-6 mb-2">🛠 Tips for Writing Product Descriptions Faster</h4>
+                <ul class="list-disc list-inside space-y-1 text-slate-600">
+                    <li>Use AI as a first draft generator, but always human-edit for tone and accuracy.</li>
+                    <li>Read competitor pages — aim to do better, not just match.</li>
+                    <li>Maintain a brand voice guide for a consistent tone.</li>
+                </ul>
+            `;
+        }
+        
+        // Populate sections and sidebar
+        sectionsData.forEach((section, index) => {
+            const sectionId = `section-${index + 1}`;
+            
+            const sectionHtml = `
+                <section id="${sectionId}" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 scroll-mt-24">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-2">${section.icon} ${index + 1}. ${section.title}</h2>
+                    <div class="mb-4"><p class="font-semibold text-sky-600">What is it?</p><p class="text-slate-600">${section.what}</p></div>
+                    <div class="mb-6"><p class="font-semibold text-amber-600">Why:</p><p class="text-slate-600">${section.why}</p></div>
+                    ${section.formula ? `<div class="mb-6"><p class="font-semibold">Formula:</p><div class="formula-box">${section.formula}</div></div>` : ''}
+                    <h3 class="font-semibold text-slate-800 mb-4">Checklist</h3>
+                    <div class="space-y-3">
+                        ${section.checklist.map((item, i) => `
+                            <label for="check-${index}-${i}" class="checklist-item cursor-pointer">
+                                <input type="checkbox" id="check-${index}-${i}" class="h-5 w-5 rounded border-gray-300 mr-4 main-checklist-item">
+                                <span class="flex-grow">${item}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                    ${createExamplesHtml(section.examples)}
+                    ${createDetailedGuideHtml(section.detailedGuide)}
+                    ${section.tip ? `<div class="mt-4 p-3 bg-blue-50 text-blue-700 rounded-md"><p><strong>Technical Tip:</strong> ${section.tip}</p></div>` : ''}
+                </section>`;
+            sectionsContainer.innerHTML += sectionHtml;
+
+            const navLink = document.createElement('a');
+            navLink.href = `#${sectionId}`;
+            navLink.textContent = `${index + 1}. ${section.title.split('(')[0].trim()}`;
+            navLink.className = 'block p-2 rounded-md text-slate-600 hover:bg-slate-100';
+            navLink.dataset.target = sectionId;
+            sidebarNav.appendChild(navLink);
+        });
+
+        // Add links for final sections to sidebar
+        const finalNavLinks = [
+            { id: 'section-15', title: '15. Final SEO Audit' },
+            { id: 'tools-section', title: '🧰 Optional: Tools to Use' }
+        ];
+        finalNavLinks.forEach(linkInfo => {
+            const navLink = document.createElement('a');
+            navLink.href = `#${linkInfo.id}`;
+            navLink.textContent = linkInfo.title;
+            navLink.className = 'block p-2 rounded-md text-slate-600 hover:bg-slate-100';
+            navLink.dataset.target = linkInfo.id;
+            sidebarNav.appendChild(navLink);
+        });
+
+        // Populate Tools Section
+        toolsData.forEach(tool => {
+            toolsGrid.innerHTML += `
+                <div class="tool-card bg-white p-4 rounded-lg shadow-md flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-white ${tool.color}">
+                        <i class="fas ${tool.icon} fa-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800">${tool.name}</h3>
+                        <p class="text-sm text-slate-500">${tool.description}</p>
+                    </div>
+                </div>
+            `;
+        });
+
+        function updateMainProgress() {
+            const allCheckboxes = sectionsContainer.querySelectorAll('.main-checklist-item');
+            const checkedCheckboxes = sectionsContainer.querySelectorAll('.main-checklist-item:checked');
+            const total = allCheckboxes.length;
+            const checkedCount = checkedCheckboxes.length;
+            const percentage = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
+            mainProgressBar.style.width = `${percentage}%`;
+            mainScoreDisplay.textContent = `${percentage}%`;
+        }
+        sectionsContainer.addEventListener('change', updateMainProgress);
+
+        const circumference = finalAuditProgressBar.getTotalLength();
+        finalAuditProgressBar.style.strokeDasharray = `${circumference} ${circumference}`;
+        finalAuditProgressBar.style.strokeDashoffset = circumference;
+        finalAuditItems.forEach((item, i) => {
+            finalAuditChecklist.innerHTML += `
+                <label for="final-check-${i}" class="checklist-item cursor-pointer">
+                    <input type="checkbox" id="final-check-${i}" class="h-5 w-5 rounded border-gray-300 mr-4">
+                    <span class="flex-grow">${item}</span>
+                </label>`;
+        });
+        finalAuditChecklist.addEventListener('change', () => {
+            const checkedCount = finalAuditChecklist.querySelectorAll('input:checked').length;
+            const percentage = finalAuditItems.length > 0 ? Math.round((checkedCount / finalAuditItems.length) * 100) : 0;
+            const offset = circumference - (percentage / 100) * circumference;
+            finalAuditProgressBar.style.strokeDashoffset = offset;
+            finalAuditScore.textContent = `${percentage}%`;
+        });
+        
+        const navLinks = sidebarNav.querySelectorAll('a');
+        const contentSections = document.querySelectorAll('#sections-container section, #section-15, #tools-section');
+        
+        function updateActiveLink() {
+            let currentSection = '';
+            contentSections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 120) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.target === currentSection) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', updateActiveLink);
+        
+        menuButton.addEventListener('click', () => sidebar.classList.toggle('open'));
+        
+        sidebarNav.addEventListener('click', (e) => {
+            if(e.target.tagName === 'A' && window.innerWidth < 1024) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        updateMainProgress();
+        updateActiveLink();
+    });
+    </script>
 </body>
 </html>
+
